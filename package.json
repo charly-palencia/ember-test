@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/charly-palencia/ember-test",
   "devDependencies": {
-    "gulp": "~3.8.10"
+    "gulp": "~3.8.10",
+    "gulp-ember-handlebars": "~0.7.0"
   },
   "dependencies": {
     "0": "0.0.0",

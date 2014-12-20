@@ -17,6 +17,7 @@ var gulp = require('gulp'),
     karma = require('gulp-karma'),
     del = require('del');
     haml = require('gulp-haml');
+    handlebars = require('gulp-ember-handlebars');
 
 //bower
 gulp.task('bower', function() {
@@ -24,9 +25,19 @@ gulp.task('bower', function() {
     .pipe(gulp.dest('dist/lib/'))
 });
 
+//ember-handlebars
+gulp.task('templates', function(){
+  gulp.src(['src/app/templates/*.hbs'])
+    .pipe(handlebars({
+      outputType: 'amd'
+     }))
+    .pipe(concat('templates.js'))
+    .pipe(gulp.dest('dist/assets/js'));
+});
+
 // minify css
 gulp.task('styles', function() {
-  return gulp.src('src/styles/main.scss')
+  return gulp.src('src/app/styles/main.scss')
     .pipe(sass({ style: 'expanded' }))
     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
     .pipe(gulp.dest('dist/assets/css'))
@@ -38,7 +49,7 @@ gulp.task('styles', function() {
 
 //minify js
 gulp.task('scripts', function() {
-  return gulp.src('src/scripts/build/**/*.js')
+  return gulp.src('build/**/*.js')
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter('default'))
     .pipe(concat('main.js'))
@@ -51,7 +62,7 @@ gulp.task('scripts', function() {
 
 //compress img
 gulp.task('images', function() {
-  return gulp.src('src/images/**/*')
+  return gulp.src('src/app/images/**/*')
     .pipe(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
     .pipe(gulp.dest('dist/assets/img'))
     .pipe(notify({ message: 'Images task complete' }));
@@ -65,16 +76,16 @@ gulp.task('haml', function () {
 
 //convert coffee files
 gulp.task('coffee', function() {
-  gulp.src('src/scripts/**/*.coffee')
+  gulp.src('src/app/scripts/**/*.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(gulp.dest('src/scripts/build'))
+    .pipe(gulp.dest('build'))
 });
 
 //convert coffee spec files
 gulp.task('coffee-spec', function() {
-  gulp.src('spec/**/*.coffee')
+  gulp.src('src/spec/**/*.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(gulp.dest('spec/build'))
+    .pipe(gulp.dest('build/spec'))
 });
 
 //cache all assets
@@ -88,7 +99,7 @@ gulp.task('html', function () {
 });
 
 gulp.task('html-components', function(){
-  gulp.src('src/scripts/components/**/*.html')
+  gulp.src('src/app/scripts/components/**/*.html')
   .pipe(gulp.dest('dist/views'));
 });
 
@@ -96,27 +107,30 @@ gulp.task('html-components', function(){
 gulp.task('watch', function() {
 
   // Watch .scss files
-  gulp.watch('src/styles/**/*.scss', ['styles']);
+  gulp.watch('src/app/styles/**/*.scss', ['styles']);
   // Watch .js files
-  gulp.watch('src/scripts/build/**/*.js', ['scripts']);
+  gulp.watch('build/**/*.js', ['scripts']);
   // Watch image files
-  gulp.watch('src/images/**/*', ['images']);
+  gulp.watch('src/app/images/**/*', ['images']);
   //watch html files
   gulp.watch(['*.html'], ['html']);
   //watch coffee
-  gulp.watch(['src/scripts/**/*.coffee'], ['coffee']);
+  gulp.watch(['src/app/scripts/**/*.coffee'], ['coffee']);
   // Watch bower components
   gulp.watch('bower_components/**/*', ['bower']);
   //watch html components
-  gulp.watch(['src/scripts/**/*.html'], ['html-components']);
+  gulp.watch(['src/app/scripts/**/*.html'], ['html-components']);
   //watch test
-  gulp.watch(['spec/build/**/*.js'], ['test']);
+  gulp.watch(['build/test/**/*.js'], ['test']);
 
   //watch coffee spec
-  gulp.watch(['spec/**/*.coffee'], ['coffee-spec']);
+  gulp.watch(['src/spec/**/*.coffee'], ['coffee-spec']);
 
   //watch coffee spec
   gulp.watch(['src/index.haml'], ['haml', 'html']);
+
+  //wath handlebars views
+  gulp.watch(['src/app/templates/*.hbs'], ['templates']);
 
   livereload.listen();
   gulp.watch(['dist/**']).on('change', livereload.changed);
@@ -145,6 +159,6 @@ gulp.task('test', function() {
 });
 
 
-gulp.task('default', ['clean', 'haml', 'coffee', 'scripts', 'styles', 'html', 'html-components', 'bower'], function() {
+gulp.task('default', ['clean', 'haml', 'coffee', 'scripts', 'styles', 'html', 'html-components', 'templates', 'bower'], function() {
   gulp.start('server', 'watch');
 });
