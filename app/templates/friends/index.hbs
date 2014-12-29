@@ -1,0 +1,18 @@
+<table class="primary">
+<thead>
+<tr>
+<th>Name</th>
+<th>Articles</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+{{#each}}
+<tr>
+<td>{{link-to fullName "articles" this}}</td>
+<td>{{totalArticles}}</td>
+<td><a href="#" {{action "delete" this}}>delete</a></td>
+</tr>
+{{/each}}
+</tbody>
+</table>
